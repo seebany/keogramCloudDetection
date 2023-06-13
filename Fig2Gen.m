@@ -18,6 +18,9 @@ function [] = Fig2Gen(data_dir)
 disp('Loading KeogCloudData.mat')
 load([data_dir filesep 'KeogCloudData.mat'])
 disp('Loaded')
+FTPServer = ftp('optics.gi.alaska.edu')%crash here means not connecting to server
+rootfolder = 'PKR/DMSP/NCDF';
+cd(FTPServer,rootfolder);
 
 % Select date of interest
 TargetDate = datetime(2014, 1, 1); %2/21/2014 14 UT, 2/22/2014
