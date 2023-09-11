@@ -2,17 +2,10 @@
 % generates histograms of the coefficient of variation for the two 
 % populations of cloudy and clear mask values.
 % 
-% Created and run on Windows with Matlab R2019a.
-% Tested on Linux Ubuntu with Matlab R2015b.
-% Requires Statistics and Machine Learning Toolbox
-%
-% License GNU GPL v3.
 % Created by Alex English 2022
-% Commented and updated by Seebany Datta-Barua
-% 17 Nov 2022
+% Modified and commented by Seebany Datta-Barua
+% 23 May 2023
 % Illinois Institute of Technology
-% 23 May 2023: Seebany Datta-Barua: adding function calls to raylpdf that 
-% 	require the Statistics and Machine Learning Toolbox.
 
 function [] = P5HistogramGen(data_dir, sat_list, year_list,testcolor, COV, darksky_thresh, titleprefix, dist_rank, NOAA_cloudy_mask, NOAA_clear_mask)
 
@@ -54,10 +47,8 @@ target_year = year_list; %year_list(y);
 % Initialize empty variables.
 cloud_cat = [];
 TimeDiff = [];
-cv_FFC_557 = [];
+cv_FFC = [];
 avg_int = [];
-cv_FFC_630 = [];
-cv_FFC_428 = [];
 % Loop through NOAA satellites.
 for k = 1:length(sat_list)
         sat = sat_list{k};
@@ -73,12 +64,25 @@ for k = 1:length(sat_list)
             cloud_cat = [cloud_cat cc'];
             timediff = PFNOAA_Keog.TimeDiff;
             TimeDiff = [TimeDiff timediff'];
-            cv_FFC2_557 = PFNOAA_Keog.cv_FFC_557;
-            avg_int_temp = PFNOAA_Keog.AvgInt_557_FFC;
+	    % Use the average intensity of the green to test for dark sky.
+	    avg_int_temp = PFNOAA_Keog.AvgInt_557_FFC;
             avg_int = [avg_int avg_int_temp'];
-            cv_FFC_557 = [cv_FFC_557 cv_FFC2_557'];
+
+	    % Collect the coefficient of variations for the color chosen.
+	    switch testcolor
+		case 'green'
+            cv_FFC2_557 = PFNOAA_Keog.cv_FFC_557;
+            cv_FFC = [cv_FFC cv_FFC2_557'];
+            	case 'red'
+		    cv_FFC2_630 = PFNOAA_Keog.cv_FFC_630;
+	    %avg_int_temp = PFNOAA_Keog.AvgInt_630_FFC;
+            %avg_int = [avg_int avg_int_temp'];
+            cv_FFC = [cv_FFC cv_FFC2_630'];
+	    end
         end
 end
+%b = .25;
+%a = 0:b:3;
 
 % Find the events that exceed the dark sky threshold.
 avggood = avg_int > darksky_thresh;
@@ -91,39 +95,47 @@ disp(['The number of events that exceed the dark sky threshold is ' ...
 iscloudy = false(size(cloud_cat));
 isclear = false(size(cloud_cat));
 for i = 1:numel(NOAA_cloudy_mask)
-	iscloudy = iscloudy + cloud_cat == NOAA_cloudy_mask(i);
+	iscloudy = iscloudy + (cloud_cat == NOAA_cloudy_mask(i));
 end
 for i = 1:numel(NOAA_clear_mask)
-	isclear = isclear + cloud_cat == NOAA_clear_mask(i);
+	isclear = isclear + (cloud_cat == NOAA_clear_mask(i));
 end
 cc3_avggood = find(iscloudy & avggood);
 cc0_avggood = find(isclear & avggood);
 
-% Print out the counts and statistics.
+% Compute prior probabilities.
 numH0orH1 = numel(cc3_avggood)+numel(cc0_avggood);
+PH0 = numel(cc3_avggood)/numH0orH1;
+PH1 = numel(cc0_avggood)/numH0orH1;
+
+% Print out the counts and statistics.
 disp(['The number of events that have the clear or the cloudy mask is ' ...
 	num2str(numH0orH1)]);
 disp(['The number of events that have the cloudy mask is ' num2str(numel(cc3_avggood))])
 disp(['The number of events that have the clear mask is ' num2str(numel(cc0_avggood))])
-disp(['This means P(H_0) = ' num2str(numel(cc3_avggood)/numH0orH1)]);
-disp(['and P(H_1) = ' num2str(numel(cc0_avggood)/numH0orH1)]);
+disp(['This means P(H_0) = ' num2str(PH0)]);%numel(cc3_avggood)/numH0orH1)]);
+disp(['and P(H_1) = ' num2str(PH1)]);%cc0_avggood)/numH0orH1)]);
     
-% Histogram bar boundaries
+    % Create four bars in the histogram up to the threshold, and then 10
+    % more from there up to the highest c out of both the cloudy and
+    % cloud-free histograms.
+%    edges = [linspace(0, COV, 5) COV:(COV/4):max([max(cv_FFC_557(cc3_avggood)) max(cv_FFC_557(cc0_avggood))])];
+%     f1 = figure; figure(f1);
 edges = 0:0.125:3;
 x_limits = [0 2];
 
-    histogram(cv_FFC_557(cc3_avggood), ...
+    histogram(cv_FFC(cc3_avggood), ...
         'Normalization', hist_type, ....
-        'DisplayName', ['Cloudy mean = ' num2str(mean(cv_FFC_557(cc3_avggood)))], ...
+        'DisplayName', ['Cloudy mean = ' num2str(mean(cv_FFC(cc3_avggood)))], ...
         'BinEdges', edges); %Strong Cloud
     hold on;
     title([titleprefix ' Normalized histogram ' num2str(target_year) ' ' testcolor 'line']);
-    histogram(cv_FFC_557(cc0_avggood), ...
+    histogram(cv_FFC(cc0_avggood), ...
         'Normalization', hist_type, ....
-        'DisplayName', ['Clear mean = ' num2str(mean(cv_FFC_557(cc0_avggood)))], ...
+        'DisplayName', ['Clear mean = ' num2str(mean(cv_FFC(cc0_avggood)))], ...
         'BinEdges', edges); %Clear
     y_limits = ylim;
-    plot([COV COV], [0 max(y_limits)], 'r-', 'DisplayName', ['Coefficient of Variation = ' num2str(COV)])
+    plot([COV COV], [0 max(y_limits)], 'r-','LineWidth', 2); 
     ylim(y_limits);
     xlabel('Coefficient of Variation');
     xlim(x_limits)
@@ -133,17 +145,16 @@ x_limits = [0 2];
         case 'probability'
             ylabel('Probability');
     end
-    legend(['Cloudy mask = ' num2str(NOAA_cloudy_mask)], ...
-	['Clear mask = ' num2str(NOAA_clear_mask)] );
     
                 % Also plot Rayleigh distributions.
                 % Requires the Statistics & Machine Learning Toolbox
                 % Posterior probability of null hypothesis for each x.
                 x = [0:0.01:1]; % Array of possible test statistic values.
-                pdf(1,:) = raylpdf(x,0.15);
+		raylparams = [0.20, 0.5];
+                pdf(1,:) = raylpdf(x,raylparams(1));
                 %pdf(1,:) = chi2pdf(x, 1);
-                pdf(2,:) = raylpdf(x, 0.5);
-                prior(1) = 0.61; % Prior probability of cloudy sky.
+                pdf(2,:) = raylpdf(x, raylparams(2));
+                prior(1) = PH0;%0.61; % Prior probability of cloudy sky.
                 prior(2) = 1 - prior(1); % Prior of clear sky.
                 MAP(1,:) = pdf(1,:).*prior(1); % null = cloudy probability
                 MAP(2,:) = pdf(2,:).*prior(2); % alternate = clear
@@ -152,9 +163,14 @@ x_limits = [0 2];
 
                 x = [0:0.01:2];
                 clear pdf
-                pdf(1,:) = raylpdf(x,0.15);
+                pdf(1,:) = raylpdf(x,raylparams(1));
                 %pdf(1,:) = chi2pdf(x, 1);
-                pdf(2,:) = raylpdf(x, 0.5);
-                plot(x, pdf/8); % Scale down by a factor of 8 to line up with the plot better.
-                grid on
+                pdf(2,:) = raylpdf(x, raylparams(2));
+                lineh = plot(x, pdf/8); % Scale down by a factor of 8 to line up with the plot better.
+                set(lineh, 'LineWidth', 2)
+		grid on
+    legend(['Cloudy mask = ' num2str(NOAA_cloudy_mask)], ...
+	['Clear mask = ' num2str(NOAA_clear_mask)], ...
+	['Numerical best threshold = ' num2str(COV)] ,...
+	'Theoretical cloudy pdf', 'Theoretical clear pdf' );
 

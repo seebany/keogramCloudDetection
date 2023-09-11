@@ -12,16 +12,11 @@
 %	COV: a user-specified threshold, if the user doesn't want the full search.
 %	dist_rank: an integer 1:9 indicating if the closest pixel to Poker Flat should be used (1) or one of the 8 pixels surrounding that pixel, in order of increasing distance.
 %
-% Created and run on Windows with Matlab R2019a.
-% Tested on Linux Ubuntu with Matlab R2015b.
-% Requires Statistics and Machine Learning Toolbox
-%
-% License GNU GPL v3.
 % Created by Alex English 2022
 % Commented and updated by Seebany Datta-Barua
-% 17 Nov 2022
+% 17 May 2023
 % Illinois Institute of Technology
-% 17 May 2023: Seebany Datta-Barua: Adding an option to filter the comparison data to compute statistics for a particular NOAA pixel, as a sensitivity study. 
+% Adding an option to filter the comparison data to compute statistics for a particular NOAA pixel, as a sensitivity study. 
 % Variable dist_rank is an integer 1:9 with 1 indicating the closest pixel, and 9 the furthest of the 9 pixels saved.
 
 function [ideal_thresh, darksky_cutoff, numbers_for_thresh, percent_for_thresh]...
@@ -66,16 +61,16 @@ end
 
 % Clear out any old output files to prepare to write a new one.
 % CloudCompareStats doesn't appear to get written as an output file.
-StatsExcelFileName = ['CloudCompareStats' target_year_string_comp '.xlsx'];
-if exist(StatsExcelFileName)
-    delete(StatsExcelFileName);
-end
-% Clear the output file if it exists.
-filename = ['StatsNumbers' target_year_string_comp '_' testcolor '.xlsx'];
-if exist(filename)
-    delete(filename);
-end
-MatName = ['Stats' target_year_string_comp '_' testcolor '.mat'];
+%StatsExcelFileName = ['CloudCompareStats' target_year_string_comp '.xlsx'];
+%if exist(StatsExcelFileName)
+%    delete(StatsExcelFileName);
+%end
+%% Clear the output file if it exists.
+%filename = ['StatsNumbers' target_year_string_comp '_' testcolor '.xlsx'];
+%if exist(filename)
+%    delete(filename);
+%end
+%MatName = ['Stats' target_year_string_comp '_' testcolor '.mat'];
 
 %total_number = {};
 %total_percent = {};
@@ -162,6 +157,7 @@ timediff = timediff';
 darksky_test_statistic = cv_avgint;
 test_statistic = cv_FFC2';
 
+
 % ---------------------------------------------------	    
 % Loop through each possible threshold.
 for i557 = 1:length(thresh_list)
@@ -198,54 +194,8 @@ percent_NOAACF_KeogC = (count_NOAACF_KeogC./count_strong_aurora)*100;
 tss = count_Both_CF/(count_Both_CF + count_NOAACF_KeogC) -...
 	count_NOAAC_KeogCF/(count_NOAAC_KeogCF + count_Both_C)
 
-%            
-%            NOAA_C_Keog_CF_ind = find(NOAA_C_Keog_CF);% == 3);
-%            StatsCat(NOAA_C_Keog_CF_ind) = strcat(StatsCat(NOAA_C_Keog_CF_ind), 'NOAA:C  Keog:CF');
-%%            StatsCat(NOAA_C_Keog_CF_ind) = strcat(StatsCat(NOAA_C_Keog_CF_ind), "NOAA: C Keog: CF");
-%%            NOAA_C_Keog_CF = NOAA_C_Keog_CF == 3;
-%
-            % The strlength function was introduced by Mathworks in R2016b according to
-            % https://www.mathworks.com/help/matlab/ref/strlength.html
-            % Accessed 1 Nov 2022.
-%            if verLessThan('matlab', 'R2016b')
-%                for j = 1:numel(StatsCat)
-%                    StatsCatTest(j) = length(StatsCat{j});
-%                end
-%            else
-%                StatsCatTest = strlength(StatsCat);
-%            end
-%            % StatsCatTest is an array listing the length of each string
-%            % describing the category of each event. Each is only a
-%            % 15-character string.
-%            if max(StatsCatTest) > 15
-%                error('An event is being categorized as more than one stats cat');
-%            end
-
-            %             writetable(StatsTable, StatsExcelFileName, 'Sheet', ['PFNOAA_Keog_WStats' num2str(thresh_557) '_' num2str(year(i))]);
-%        clear std_FFC_CF std_FFC_C % avggood %NOAA_CF NOAA_C strong 
-%        clear NOAA_Keog_CF NOAA_Keog_C NOAA_CF_Keog_C NOAA_C_Keog_CF
-%        clear NOAA_CF_Keog_C_ind NOAA_C_Keog_CF_ind
-%        if verLessThan('matlab', 'R2016a')
-%            year(end) = cellstr('all');
-%        else
-%            year(end) = 'all';
-%        end
         NOAA_Keog_Stats_numbers = table(dist_rank, count_total_events, count_total_strong, count_strong_aurora, count_matching, count_Both_CF, count_Both_C, count_diff, count_NOAAC_KeogCF, count_NOAACF_KeogC);
         NOAA_Keog_Stats_percents = table(dist_rank, count_total_events, count_total_strong, count_strong_aurora, percent_matching, percent_both_CF, percent_both_C, percent_diff, percent_NOAAC_KeogCF, percent_NOAACF_KeogC);
-%        sheetname = ['557=' num2str(thresh_557)];
-%         if verLessThan('matlab', 'R2016a')
-%             xlswrite(filename, NOAA_Keog_Stats_numbers, sheetname);
-%             xlswrite(filename, NOAA_Keog_Stats_percents, sheetname, 'Range', 'A7');
-%         else
-%             writetable(NOAA_Keog_Stats_numbers, filename, 'Sheet', sheetname);
-%             writetable(NOAA_Keog_Stats_percents, filename, 'Sheet', sheetname, 'Range', 'A7');
-%         end
-%        total_number{end+1} = NOAA_Keog_Stats_numbers;
-%        total_percent{end+1} = NOAA_Keog_Stats_percents;
-        
-%        clear count_strong_aurora count_Both_CF count_matching count_Both_C 
-%        clear count_NOAAC_KeogCF count_diff count_NOAACF_KeogC count_total_events count_total_strong
-%    save(MatName, 'total_number', 'total_percent', 'thresh_557_total_list');
 
 % If a threshold COV has been specified by the user, use that.
 % Otherwise, find and use the optimal.
@@ -263,11 +213,12 @@ disp(['Numerical best threshold from this data set c = ' ...
 	num2str(thresh_list(find(percent_diff == min(min(percent_diff)))))]);
 disp(['with ' num2str(min(min(percent_diff))) '%']);
 
-plot(thresh_list, percent_diff, 'HandleVisibility', 'off');
+lineh = plot(thresh_list, percent_diff, 'HandleVisibility', 'off');
+set(lineh, 'LineWidth', 2);
 hold on
 % If there are multiple thresholds that work, choose the first/lowest.
 scatter(thresh_list(ideal_thresh_ind(1)), ...
-	percent_diff(ideal_thresh_ind(1)), 'filled', ...
+	percent_diff(ideal_thresh_ind(1)), 60, 'filled', ...
 	'DisplayName', ['Lowest Mislabeling at Threshold: ' ...
 	num2str(thresh_list(ideal_thresh_ind(1))) ' Percent Diff: ' ...
 	num2str(percent_diff(ideal_thresh_ind(1))) '%'])
@@ -278,16 +229,21 @@ title([titleprefix ' Percent mislabeled for NOAA pixel \newline' ...
 	' km away for' target_year_string_titles]);
 grid on
                 % Compute the theoretical mislabeling rate.
+		raylparams = [0.20, 0.5];
+
                 x = [0:0.01:1]; % Array of possible test statistic values.
-                pdf(1,:) = raylpdf(x,0.15);
-                pdf(2,:) = raylpdf(x, 0.5);
-                prior(1) = 0.62; % Prior probability of cloudy sky.
+                pdf(1,:) = raylpdf(x,raylparams(1));
+                pdf(2,:) = raylpdf(x, raylparams(2));
+
+                prior(1) = 0.47;%0.61; % Prior probability of cloudy sky.
+%                prior(1) = 0.62; % Prior probability of cloudy sky.
                 prior(2) = 1 - prior(1); % Prior of clear sky.
-                cumdf(1,:) = raylcdf(x,0.15);
-                cumdf(2,:) = raylcdf(x,0.5);
+                cumdf(1,:) = raylcdf(x,raylparams(1));
+                cumdf(2,:) = raylcdf(x,raylparams(2));
                 fa = prior(1)*(1 - cumdf(1,:));
                 md = prior(2)*cumdf(2,:);
-                plot(x, (fa+md)*100);
+                lineh = plot(x, (fa+md)*100);
+		set(lineh, 'LineWidth', 2);
                 disp(['Theoretical mislabeling percent minimum from ' ...
 			'pdfs fit to training data, is at c = ' ...
                 num2str(x(find(fa+md == min(fa+md))))])

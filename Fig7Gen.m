@@ -1,20 +1,8 @@
 % function [] = Fig7Gen(data_dir)
-% generates English et al., paper Fig 7
+% generates English et al., paper Fig 6
 % which contains a top subplot of a keogram of 01/21/2014,
 % slices of intensity vs elevation at 09:00, and 11:00 UT, 
 % and histograms of intensity at each of those Keogram Time Intervals
-%
-% Created and run on Windows with Matlab R2019a.
-% Tested on Linux Ubuntu with Matlab R2015b.
-%
-% This code assumes that P0*.m, P1*.m, P2*.m and P3*.m have already been
-% run and the outputs stored.
-%
-% Created by Alex English 2022
-% Documented and maintained by Seebany Datta-Barua
-% Illinois Institute of Technology
-% 25 Oct 2022
-% License GNU GPL v3.
 function [] = Fig7Gen(data_dir)
 
 % Load data created by P2*.m
@@ -61,19 +49,29 @@ else
 end
 hold on;
 ax = axis;
-xlabel('UT Hour')
+%xlabel('UT Hour')
 
 % Mark the times whose histograms will be shown with vertical lines.
 xcoords = repmat(Time(index),1,2);
 ycoords = repmat(ax(3:4), numel(timelist), 1);
 h = plot(xcoords', ycoords', 'm-');
 set(h, 'LineWidth', 2)
-title(['a) 557.7 nm Keogram ' datestr(TargetDate, 'mmm dd, yyyy')])%Jan 1 2014');
+title(['a) 557.7 nm Keogram ' datestr(TargetDate, 'mmm dd, yyyy') ' vs UT Hour'])%Jan 1 2014');
 ylabel('Elevation Angle \newline along the meridian \newline [\theta from N]');
 a = colorbar;
 ylabel(a, 'Intensity [Rayleighs]');
 clims = caxis;
 caxis([0 clims(2)*.30]);
+
+%plot([Time(index1) Time(index1)], [10 170], 'r-');
+%plot([Time(index2) Time(index2)], [10 170], 'r-');
+%title('a) 557 nm Keogram Feb 21 2014');
+%ylabel('Viewing Angle [\theta from N]');
+%colorbar;
+%clims = caxis;
+%caxis([0 clims(2)*.30]);
+%
+%ymax = max([max(KeogFFC_557(:, :, index2)) max(KeogFFC_557(:, :, index1))]) + 1000;
 
 %---------------------------------------------------------
 % For Figs c-d, set the maximum intensity for all y-axes.
@@ -81,15 +79,21 @@ ymax = max(max(squeeze(KeogFFC_557(:,:,index)))) + 100;
 prefixstr = {'c) Discrete Aurora ', 'e) Diffuse Aurora '};
 
 subplot(4, 2, [3 4]);
-h = plot(Time, [cv_557FFC; ones(size(cv_557FFC))*0.51], 'HandleVisibility','off');
+h = plot(Time, [cv_557FFC; ones(size(cv_557FFC))*0.25], 'HandleVisibility','off');
 hold on;
 axis tight;
+ax = axis;
+axis([ax(1:2), 0 2]);
 ax = axis;
 ycoords = repmat(ax(3:4), numel(timelist), 1);
 legend(h, 'Coefficient of variation', 'Cloud Threshold', 'Location','Best');
 h = plot(xcoords', ycoords', 'm-');
 set(h, 'LineWidth', 2)
-
+%plot([Time(index1) Time(index1)], [0 max(cv_557FFC)], 'r-', 'HandleVisibility','off');
+%plot([Time(index2) Time(index2)], [0 max(cv_557FFC)], 'r-', 'HandleVisibility','off');
+%% text(Time(index1), max(cv_557FFC), '9 UT');
+%% text(Time(index2), max(cv_557FFC), '11 UT');
+%plot([min(Time) max(Time)], [0.51 0.51], '-g', 'DisplayName', 'CoV Cloud Threshold');
 if verLessThan('matlab', 'R2016b')
 	set(gca, 'XTick', [floor(min(Time)):1:floor(max(Time))])
 else
@@ -97,9 +101,25 @@ else
 end
 
 title('b) Coefficient of Variation');
-ylabel('Coefficient of Variation [CoV]');
+ylabel('Coefficient of Variation');
 xlabel('UT Hour')
 
+%---------------------------------------------------------
+%subplot(5, 2, [5 6]);
+%plot(Time, std_557FFC, 'HandleVisibility','off');
+%hold on;
+%plot([Time(index1) Time(index1)], [0 max(std_557FFC)], 'r-', 'HandleVisibility','off');
+%plot([Time(index2) Time(index2)], [0 max(std_557FFC)], 'r-', 'HandleVisibility','off');
+%% text(Time(index1), max(cv_557FFC), '9 UT');
+%% text(Time(index2), max(cv_557FFC), '11 UT');
+%% plot([min(Time) max(Time)], [0.51 0.51], '-g', 'DisplayName', '\sigma Cloud Threshold');
+%indexCF = find(cv_557FFC < 0.51);
+%plot(Time(indexCF), std_557FFC(indexCF), '.g','LineWidth',2, 'DisplayName', 'CoV < 0.51');
+%xticks([floor(min(Time)):1:floor(max(Time))])
+%title('c) Standard Deviation');
+%ylabel('Standard Deviation [\sigma]');
+%% legend();
+%xlabel('Time [UTC]');
 
 %---------------------------------------------------------
 for list_ind = 1:numel(timelist)
@@ -131,6 +151,27 @@ datestr(datenum(TargetDate) + ...
     xlabel('Intensity [Rayleighs]');
 end
 
+%subplot(5, 2, 9); %histogram time 1
+%hist(KeogFFC_557(:, :, index1), xbins);
+%ylim([0 70]);
+%xlim([0 20000]);
+%% set(gca, 'YScale', 'log')
+%text(10000, 50, ['\sigma = ' num2str(std1)]);
+%text(10000, 40, ['\mu = ' num2str(avg1)]);
+%title('Aurora Histogram 9 UT');
+%ylabel('f) Frequency [count]');
+%xlabel('Intensity [Rayleighs]');
+%
+%subplot(5, 2, 10); %histogram time 1
+%hist(KeogFFC_557(:, :, index2), xbins);
+%ylim([0 70]);
+%xlim([0 20000]);
+%% set(gca, 'YScale', 'log')
+%text(10000, 50, ['\sigma = ' num2str(std2)]);
+%text(10000, 40, ['\mu = ' num2str(avg2)]);
+%%title('g) Diffuse Aurora Histogram 11 UT');
+%ylabel('Frequency [count]');
+%xlabel('Intensity [Rayleighs]');
 
 
 

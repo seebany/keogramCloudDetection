@@ -3,24 +3,12 @@
 % which contains a top subplot of a keogram of 01/01/2014,
 % slices of intensity vs elevation at 04:00, 08:30, and 12:30 UT, 
 % and histograms of intensity at each of those Keogram Time Intervals
-%
-% Created and run on Windows with Matlab R2019a.
-% Tested on Linux Ubuntu with Matlab R2015b.
-%
-% Created by Alex English 2022
-% Documented and maintained by Seebany Datta-Barua
-% Illinois Institute of Technology
-% 25 Oct 2022
-% License GNU GPL v3.
 function [] = Fig2Gen(data_dir)
 
 % Load data created by P2*.m
 disp('Loading KeogCloudData.mat')
 load([data_dir filesep 'KeogCloudData.mat'])
 disp('Loaded')
-FTPServer = ftp('optics.gi.alaska.edu')%crash here means not connecting to server
-rootfolder = 'PKR/DMSP/NCDF';
-cd(FTPServer,rootfolder);
 
 % Select date of interest
 TargetDate = datetime(2014, 1, 1); %2/21/2014 14 UT, 2/22/2014
@@ -107,7 +95,7 @@ yboxlim = [ax(3) ax(3) ax(4) ax(4) ax(3)];
 for list_ind = 1:numel(timelist)
     h = plot(xboxlim{list_ind}, yboxlim, 'w');
     set(h, 'LineWidth', 4)
-    texth = text(xboxlim{list_ind}(2)-1.75, yboxlim(1)+20, ['Interval ' num2str(list_ind)]);
+    texth = text(xboxlim{list_ind}(2)-1.9, yboxlim(1)+20, ['Interval ' num2str(list_ind)]);
     set(texth, 'Color','w', 'FontWeight', 'Bold', 'FontSize', 16)
 end
 
@@ -129,14 +117,14 @@ end
 
 
 
-xbins = 0:500:20000;
+xbins = 0:7.5e2:3e4;%500:20000;
 
 prefixstr = {'c) Dark Sky ', 'e) Clear Sky ', 'g) Cloudy Sky '};
 for list_ind = 1:numel(timelist)
     subplot(3, 3, list_ind+6); %histogram time 1
     hist(KeogFFC_557(:, :, index(list_ind)), xbins);
     ylim([0 70]);
-    xlim([0 20000]);
+    xlim([0 30000]);
     % set(gca, 'YScale', 'log')
     text(10000, 50, ['\sigma = ' num2str(round(std(list_ind)))]);
     text(10000, 40, ['\mu = ' num2str(round(avg(list_ind)))]);
@@ -147,25 +135,3 @@ datestr(datenum(TargetDate) + ...
     xlabel('Intensity [Rayleighs]');
 end
 
-%subplot(3, 3, 8); %histogram time 1
-%hist(KeogFFC_557(:, :, index2), xbins);
-%ylim([0 70]);
-%xlim([0 20000]);
-%% set(gca, 'YScale', 'log')
-%text(10000, 50, ['\sigma = ' num2str(round(std2))]);
-%text(10000, 40, ['\mu = ' num2str(round(avg2))]);
-%title('f) Clear Sky Histogram 8:29 UT');
-%ylabel('Frequency [count]');
-%xlabel('Intensity [Rayleighs]');
-%
-%subplot(3, 3, 9); %histogram time 1
-%hist(KeogFFC_557(:, :, index3), xbins);
-%ylim([0 70]);
-%xlim([0 20000]);
-%% set(gca, 'YScale', 'log')
-%text(10000, 50, ['\sigma = ' num2str(round(std2))]);
-%text(10000, 40, ['\mu = ' num2str(round(avg3))]);
-%title('g) Cloudy Sky Histogram 12:30 UT');
-%ylabel('Frequency [count]');
-%xlabel('Intensity [Rayleighs]');
-%

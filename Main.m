@@ -2,7 +2,7 @@
 % collected at Poker Flat Research Range from 2014-2017. Files may be
 % temporarily written to your Matlab working directory.
 % 
-% Created and run on Windows with Matlab R2019a.
+% Created and run on Windows XX with Matlab R2019a.
 % Tested on Linux Ubuntu with Matlab R2015b.
 % Functions P4_compare_NOAA_Keog_stats.m and P5HistogramGen.m require
 % the Statistics and Machine Learning toolbox. 
@@ -17,9 +17,9 @@ clear
 close all
 
 % Change these settings for the user's own configuration.
-root_dir = '/your/path/to/keogramCloudDetection/here/'; 
-KeogDownloadFolder = '/your/path/to/where/keograms/will/be/downloaded/to/';
-% Path to where derived files and output plots will be stored.
+%root_dir = '/your/path/here/'; 
+root_dir = '/data1/home/sdattaba/mfiles/saga/KeogramVerificationCodes/';
+KeogDownloadFolder = '/data2/public/Data/keograms/';
 output_dir = [root_dir filesep 'Data'];
 
 run_SunDipCalc = 1; %1 = run 0 = already run and saved data, dont run again to save time
@@ -31,14 +31,14 @@ location.longitude = -147.479; %deg Lat Long location of Poker Flat Alaska resea
 location.altitude = 497; % m, this was listed in the sun dip calculation by David Stuart
 
 % Keogram emission to use in parts 4-5.
-testcolor = 'green';%'red';%'green'; %'red and green'
+testcolor = 'green'; %'red and green'
 % Dark sky threshold.
 darksky_cutoff = 500; % Rayleighs
 
 % test = 'red and green';
 % Cloud masks to distinguish between in parts 4-5.
-NOAA_cloudy_mask = [3];%3;%[2, 3];
-NOAA_clear_mask = [0];%0;%[0, 1];
+NOAA_cloudy_mask = [2,3];%3;%[2, 3];
+NOAA_clear_mask = [0,1];%0;%[0, 1];
 % NOAA pixels to try comparing coefficient of variation to, in order of nearness.
 dist_list = 1:1; %1:9
 
@@ -106,6 +106,7 @@ for i = 1:length(run_array)
 		testing_years, testcolor, titleprefix, dist_rank, ...
 		NOAA_cloudy_mask, NOAA_clear_mask, darksky_cutoff, COV(dist_rank)); %uses detection theory on the testing data 
 
+
             end
 
         case 5 %Takes less than a few min to run
@@ -128,7 +129,7 @@ for i = 1:length(run_array)
 			'Percent_mislabeled_Histogram_' testcolor ...
 			'_' num2str(NOAA_cloudy_mask) 'iscloudy_' ...
 			num2str(NOAA_clear_mask) 'isclear_distance' ...
-			num2str(dist_rank) '_pdf.pdf'])
+			num2str(dist_rank) '_2014-17_b0.20.pdf'])
     	    end
 	case 6 % Takes a few minutes to run, as loading KeogData.mat takes time.
 		% Generate Figure 2 of the paper.
@@ -141,27 +142,27 @@ for i = 1:length(run_array)
 			'Fig2.pdf'])
 	 
 		% Generate Figure 3 of the paper.
-		Fig3Gen(output_dir);
+%		Fig3Gen(output_dir);
 		h = gcf;
 		set(h, 'PaperOrientation', 'landscape');
 		set(h,'PaperUnits','normalized');
 		set(h,'PaperPosition', [0 0 1 1]);
-		print('-painters','-dpdf',[output_dir filesep ...
-		 	'Fig3.pdf'])
+%		print('-painters','-dpdf',[output_dir filesep ...
+%		 	'Fig3.pdf'])
 
 		% Generate Figure 4 of the paper.
-		Fig4Gen();
+%		Fig4Gen();
 		h = gcf;
-		saveas(h, [output_dir filesep 'Fig4.eps'], 'epsc')
+%		saveas(h, [output_dir filesep 'Fig4.eps'], 'epsc')
 
 		% Generate Figure 7 of the paper.
-		Fig7Gen(output_dir);
+%		Fig7Gen(output_dir);
      		h = gcf;
 	        set(h, 'PaperOrientation', 'landscape');
 		set(h,'PaperUnits','normalized');
 		set(h,'PaperPosition', [0 0 1 1]);
-		print('-painters','-dpdf',[output_dir filesep ...
-		 	'Fig7.pdf'])
+%		print('-painters','-dpdf',[output_dir filesep ...
+%		 	'Fig7.pdf'])
     end %switch flag
     
 end % for run_array
