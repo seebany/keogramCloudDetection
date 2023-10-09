@@ -2,7 +2,7 @@
 % collected at Poker Flat Research Range from 2014-2017. Files may be
 % temporarily written to your Matlab working directory.
 % 
-% Created and run on Windows XX with Matlab R2019a.
+% Created and run on Windows with Matlab R2019a.
 % Tested on Linux Ubuntu with Matlab R2015b.
 % Functions P4_compare_NOAA_Keog_stats.m and P5HistogramGen.m require
 % the Statistics and Machine Learning toolbox. 
@@ -54,8 +54,8 @@ dist_list = 1:1; %1:9
 % 4: Compute correct detection, false alarm, missed detection and correct
 % negative rates for the training data; repeat for the testing data.
 % 5: Plot histograms for the training and testing years' data.
-% 6: Plot Figs 2, 3, 4a, 7 of the paper English et al., (under review). 
-% For case 6 to work, cases 0=3 need to have already been run.
+% 6: Plot Figs 2, 3, 4a, 7, and A2 of the paper English et al., (2023). 
+% For case 6 to work, cases 0-3 need to have already been run.
 % Cases 4-5 together produce Figs 5-6 of the paper. 
 run_array = 6;%4:5;%0:5;
 % User should not need to change anything below.
@@ -84,7 +84,7 @@ for i = 1:length(run_array)
         case 1
             P1KeogDownload(KeogDownloadFolder, DirNames); %Downloads all keograms during Years_Running ~1 hr to run
         case 2 %takes ~10 min to run
-            P2KeogramCalibrationandFFC(root_dir, KeogDownloadFolder, DirNames, ...
+            P2KeogramCalibrationandFFC(root_dir, KeogDownloadFolder, output_dir, DirNames, ...
 		ExcludeFile, run_SunDipCalc, SunDipCutoff, location, Years_Running, CloudFileYearly, CutoffAngle); %Calibrates and FFC downloaded keograms
         case 3 %Takes less than 10 min to run.  More like 40 s.
             % Loop through NOAA pixels.
@@ -142,27 +142,36 @@ for i = 1:length(run_array)
 			'Fig2.pdf'])
 	 
 		% Generate Figure 3 of the paper.
-%		Fig3Gen(output_dir);
+		Fig3Gen(output_dir);
 		h = gcf;
 		set(h, 'PaperOrientation', 'landscape');
 		set(h,'PaperUnits','normalized');
 		set(h,'PaperPosition', [0 0 1 1]);
-%		print('-painters','-dpdf',[output_dir filesep ...
-%		 	'Fig3.pdf'])
+		print('-painters','-dpdf',[output_dir filesep ...
+		 	'Fig3.pdf'])
 
 		% Generate Figure 4 of the paper.
-%		Fig4Gen();
+		Fig4Gen();
 		h = gcf;
-%		saveas(h, [output_dir filesep 'Fig4.eps'], 'epsc')
+		saveas(h, [output_dir filesep 'Fig4.eps'], 'epsc')
 
 		% Generate Figure 7 of the paper.
-%		Fig7Gen(output_dir);
+		Fig7Gen(output_dir);
      		h = gcf;
 	        set(h, 'PaperOrientation', 'landscape');
 		set(h,'PaperUnits','normalized');
 		set(h,'PaperPosition', [0 0 1 1]);
-%		print('-painters','-dpdf',[output_dir filesep ...
-%		 	'Fig7.pdf'])
+		print('-painters','-dpdf',[output_dir filesep ...
+		 	'Fig7.pdf'])
+
+		% Generate Figure A2 of the paper.
+		FigA2Gen(output_dir);
+		h = gcf;
+		set(h, 'PaperOrientation', 'landscape');
+		set(h,'PaperUnits','normalized');
+		set(h,'PaperPosition', [0 0 1 1]);
+		print('-painters','-dpdf',[output_dir filesep ...
+			'FigA2.pdf'])
     end %switch flag
     
 end % for run_array
