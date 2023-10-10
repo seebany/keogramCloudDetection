@@ -90,6 +90,7 @@ end
 legend('Pre-FFC \it{c}', ['\it{c} = ' num2str(uniformlyLit_thresh)], ...
 	['\it{c} <= ' num2str(uniformlyLit_thresh)], ...
 	'Location', 'Best');%'EastOutside');
+xlabel('UT Hour')
 title(['b) Pre-FFC 557.7 nm Coefficient of Variation']);% ' datestr(TargetDate, 'mmm dd, yyyy')])%Jan 1 2014');
 %-----Plot the flat-field gains vs elevation for 2014-2017 annually.
 subplot(3,2,[5 6]);
@@ -101,6 +102,7 @@ legend('2014','2015','2016','2017', 'Location', 'Best');
 axis tight
 ax = axis; 
 %axis([ax(1:2), 0, 1.25])
+xlabel('Elevation Angle [deg] along the meridian [\theta from N]');
 title(['c) 557.7 nm Flat-field Gain 2014-2017']);
 
 %-----Plot the flat-field corrected keogram.
@@ -140,4 +142,5 @@ legend('Pre-FFC \it{c}', 'Post-FFC \it{c}', ...
 	'Location', 'Best');%'EastOutside');
 a = colorbar;
 set(a,'visible','off')
+xlabel('UT Hour')
 title(['e) Pre-FFC and Post-FFC 557.7 nm Coefficient of Variation']);% ' datestr(TargetDate, 'mmm dd, yyyy')])%Jan 1 2014');
